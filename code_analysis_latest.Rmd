@@ -1,0 +1,57 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Loading Libraries 
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(readr)
+```
+# Loading Datatset
+```{r}
+df <- read_csv("data/cases_age.csv")
+head(df)
+```
+# Data Cleaning
+
+```{r}
+colSums(is.na(df))
+```
+
+```{r}
+df <- na.omit(df)
+head(df)
+colSums(is.na(df))
+```
+
+# Visualisation
+```{r}
+ggplot(df, aes(x = abs_18_29)) +
+  geom_histogram(bins = 30, aes(y = ..density..), fill = "skyblue", color = "black") +
+  geom_density(alpha = .2, fill = "red") +
+  labs(title = "Distribution of abs_18_29", x = "abs_18_29", y = "Frequency") +
+  theme_bw()
+ggsave("histogram_abs_18_29.png", width=8, height=6)
+```
+
+# Checking Correlation through spearman's test
+```{r}
+correlation_test <- cor.test(df$abs_18_29, df$capita_18_29, method = "spearman")
+print(correlation_test)
+```
+
+# Scatter plot
+```{r}
+ggplot(df, aes(x = capita_18_29, y = abs_18_29)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  labs(title = "Scatter Plot of Absolute COVID-19 Cases vs Population Size (18-29)",
+       x = "Population Size (18-29)",
+       y = "Absolute COVID-19 Cases (18-29)") +
+       theme_bw() +
+  geom_text(aes(label = sprintf("%.2f", cor(df$abs_18_29, df$capita_18_29, method = "spearman"))), x = 0.8 * max(df$capita_18_29), y = 0.9 * max(df$abs_18_29))
+```
+
